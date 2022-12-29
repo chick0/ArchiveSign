@@ -1,0 +1,3 @@
+*.cs     text eol=lf diff=csharp
+*.sln    text eol=lf merge=binary
+*.csproj text eol=lf merge=binary
