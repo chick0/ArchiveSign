@@ -1,4 +1,6 @@
+using System.IO.Compression;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace ArchiveSign
 {
@@ -6,6 +8,7 @@ namespace ArchiveSign
     {
         RSAManager rsa;
         string archivePath;
+        string? Signature;
 
         public SignatureManager(string archivePath)
         {
@@ -23,8 +26,39 @@ namespace ArchiveSign
 
         public string GetSignature()
         {
-            byte[] signature = rsa.Encrypt(GetDigest());
-            return Convert.ToBase64String(signature);
+            byte[] EncryptedDigest = rsa.Encrypt(GetDigest());
+            Signature = Convert.ToBase64String(EncryptedDigest);
+            return Signature;
+        }
+
+        public void UpdateArchive()
+        {
+            if (Signature == null)
+            {
+                throw new Exception("You must call GetSignature function first");
+            }
+
+            string outputArchivePath = archivePath.Substring(0, archivePath.Length - 4) + ".signed.zip";
+
+            FileStream SignedArchive = File.Open(outputArchivePath, FileMode.Create);
+
+            using (ZipArchive zipArchive = new ZipArchive(SignedArchive, ZipArchiveMode.Create))
+            {
+                zipArchive.CreateEntryFromFile(archivePath, "src.zip", CompressionLevel.Fastest);
+
+                ZipArchiveEntry header = zipArchive.CreateEntry("header");
+
+                using (StreamWriter writer = new StreamWriter(header.Open()))
+                {
+                    string CreatetAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:s");
+
+                    writer.WriteLine("signature=" + Signature);
+                    writer.WriteLine("created_at=" + CreatetAt);
+                    writer.WriteLine("created_at_sig=" + Convert.ToBase64String(rsa.Encrypt(Encoding.UTF8.GetBytes(CreatetAt))));
+                }
+            }
+
+            SignedArchive.Close();
         }
     }
 }

@@ -18,6 +18,7 @@ namespace ArchiveSign
                 {
                     SignatureManager signatureManager = new(fileName);
                     Console.WriteLine(args[i] + ": " + signatureManager.GetSignature());
+                    signatureManager.UpdateArchive();
                 }
             }
 
