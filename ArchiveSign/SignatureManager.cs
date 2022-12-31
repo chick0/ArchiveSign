@@ -38,7 +38,7 @@ namespace ArchiveSign
                 throw new Exception("You must call GetSignature function first");
             }
 
-            string outputArchivePath = archivePath.Substring(0, archivePath.Length - 4) + ".signed.zip";
+            string outputArchivePath = archivePath.Substring(0, archivePath.Length - 4) + ".pl-archive";
 
             FileStream SignedArchive = File.Open(outputArchivePath, FileMode.Create);
 
