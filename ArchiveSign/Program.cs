@@ -17,8 +17,9 @@ namespace ArchiveSign
                 if (fileName.EndsWith(".zip"))
                 {
                     SignatureManager signatureManager = new(fileName);
-                    Console.WriteLine(args[i] + ": " + signatureManager.GetSignature());
+                    signatureManager.GetSignature();
                     signatureManager.UpdateArchive();
+                    Console.WriteLine(args[i] + ": Archive Signed");
                 }
             }
 

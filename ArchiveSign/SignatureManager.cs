@@ -24,11 +24,10 @@ namespace ArchiveSign
             return hash;
         }
 
-        public string GetSignature()
+        public void GetSignature()
         {
             byte[] EncryptedDigest = rsa.Encrypt(GetDigest());
             Signature = Convert.ToBase64String(EncryptedDigest);
-            return Signature;
         }
 
         public void UpdateArchive()
