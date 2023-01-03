@@ -1,11 +1,11 @@
 using System.IO.Compression;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace ArchiveSign
 {
     class ArchiveHead
     {
-
         public byte[] Fingerprint { get; }
         public byte[] Signature { get; }
         public DateTime CreatedAt { get; }
@@ -29,7 +29,7 @@ namespace ArchiveSign
                 RawCreatedAt = Encoding.UTF8.GetBytes(CreatedAt);
                 this.CreatedAtSignature = Convert.FromBase64String(CreatedAtSignature);
             }
-            catch (EncoderFallbackException)
+            catch
             {
                 throw new Exception("This Archive has invaild header.");
             }
@@ -106,25 +106,7 @@ namespace ArchiveSign
                 {
                     if (entry.Name == "header")
                     {
-                        string RawHeader = "";
-
-                        using (Stream HeaderStream = entry.Open())
-                        {
-                            while (true)
-                            {
-                                int raw = HeaderStream.ReadByte();
-
-                                if (raw == -1)
-                                {
-                                    break;
-                                }
-                                else
-                                {
-                                    RawHeader += Convert.ToChar(raw);
-                                }
-                            }
-                        }
-
+                        string RawHeader = Utils.ReadStreamToString(entry.Open());
                         ParseHeader(RawHeader);
                     }
                     else if (entry.Name == "src.zip")
@@ -150,6 +132,15 @@ namespace ArchiveSign
 
             // Verify Result
             verifyResult = (FingerprintVerify == true) && (CreatedVerify == true);
+
+            if (verifyResult == true)
+            {
+                byte[] file = File.ReadAllBytes(tmp.Path);
+                byte[] Hash = SHA512.Create().ComputeHash(file);
+                bool FileVerify = Utils.HexFromByte(Head.Fingerprint) == Utils.ByteToHex(Hash);
+
+                verifyResult = FileVerify == true;
+            }
         }
     }
 }

@@ -24,7 +24,7 @@ namespace ArchiveSign
             byte[] file = File.ReadAllBytes(archivePath);
             byte[] Hash = SHA512.Create().ComputeHash(file);
 
-            Fingerprint = BitConverter.ToString(Hash).Replace("-", "").ToLower();
+            Fingerprint = Utils.ByteToHex(Hash);
             Signature = rsa.SignAndGetSignature(Encoding.UTF8.GetBytes(Fingerprint));
 
             // Set Archive Metadata
