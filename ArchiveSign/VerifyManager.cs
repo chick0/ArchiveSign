@@ -62,7 +62,7 @@ namespace ArchiveSign
                     throw new Exception("This archive is not verified.");
                 }
 
-                return (bool) verifyResult;
+                return (bool)verifyResult;
             }
         }
 

@@ -8,29 +8,29 @@ namespace ArchiveSign
         private readonly string? PublicKey;
 
         public string Private
-        { 
-            get 
+        {
+            get
             {
                 if (string.IsNullOrEmpty(PrivateKey))
                 {
                     throw new Exception("Private Key is empty!");
                 }
 
-                return PrivateKey; 
-            } 
+                return PrivateKey;
+            }
         }
 
-        public string Public 
+        public string Public
         {
-            get 
+            get
             {
                 if (string.IsNullOrEmpty(PublicKey))
                 {
                     throw new Exception("Public Key is empty!");
                 }
 
-                return PublicKey; 
-            } 
+                return PublicKey;
+            }
         }
 
         public KeyPair(string? Private, string? Public)
