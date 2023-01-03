@@ -1,6 +1,6 @@
 namespace ArchiveSign
 {
-    class TempfileManager
+    class TempfileManager : IDisposable
     {
         string path;
 
@@ -12,6 +12,14 @@ namespace ArchiveSign
         public string Path
         {
             get { return path; }
+        }
+
+        ~TempfileManager() { Clear(); }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            Clear();
         }
 
         public void Clear()

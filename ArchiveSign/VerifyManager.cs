@@ -141,6 +141,8 @@ namespace ArchiveSign
 
                 verifyResult = FileVerify == true;
             }
+
+            tmp.Dispose();
         }
     }
 }
