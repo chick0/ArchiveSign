@@ -17,9 +17,17 @@ namespace ArchiveSign
                 if (fileName.EndsWith(".zip"))
                 {
                     SignatureManager signatureManager = new(fileName);
-                    signatureManager.GetSignature();
                     signatureManager.UpdateArchive();
-                    Console.WriteLine(args[i] + ": Archive Signed");
+
+                    Console.WriteLine($"{args[i]}: Archive Signed");
+                }
+                else if (fileName.EndsWith(".pl-archive"))
+                {
+                    VerifyManager verifyManager = new(fileName);
+                    verifyManager.Verify();
+
+                    string result = verifyManager.Result == true ? "Success" : "Fail";
+                    Console.WriteLine($"{args[i]}: Verify {result}");
                 }
             }
 

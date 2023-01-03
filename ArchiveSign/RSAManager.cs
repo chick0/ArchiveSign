@@ -4,26 +4,27 @@ namespace ArchiveSign
 {
     class RSAManager
     {
-        KeyPair keyPair;
-        RSACryptoServiceProvider RSA;
+        private readonly KeyPair keyPair;
 
         public RSAManager()
         {
             keyPair = KeyManager.GetKeyPair();
+        }
 
-            RSA = new RSACryptoServiceProvider();
+        public byte[] SignAndGetSignature(byte[] data)
+        {
+            var RSA = new RSACryptoServiceProvider();
             RSA.ImportFromPem(keyPair.Private);
+
+            return RSA.SignData(data, SHA512.Create());
+        }
+
+        public bool GetVerifyResult(byte[] data, byte[] signature)
+        {
+            var RSA = new RSACryptoServiceProvider();
             RSA.ImportFromPem(keyPair.Public);
-        }
 
-        public byte[] Encrypt(byte[] data)
-        {
-            return RSA.Encrypt(data, false);
-        }
-
-        public byte[] Decrypt(byte[] data)
-        {
-            return RSA.Decrypt(data, false);
+            return RSA.VerifyData(data, SHA512.Create(), signature);
         }
     }
 }

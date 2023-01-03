@@ -7,36 +7,32 @@ namespace ArchiveSign
     class SignatureManager
     {
         RSAManager rsa;
-        string archivePath;
-        string? Signature;
+        readonly string archivePath;
+
+        readonly byte[] Fingerprint;
+        readonly byte[] Signature;
+
+        readonly string CreatedAt;
+        readonly byte[] CreatedAtSignature;
 
         public SignatureManager(string archivePath)
         {
             rsa = new RSAManager();
             this.archivePath = archivePath;
-        }
 
-        byte[] GetDigest()
-        {
+            // Get Archive Signature
             byte[] file = File.ReadAllBytes(archivePath);
-            byte[] hash = SHA512.Create().ComputeHash(file);
 
-            return hash;
-        }
+            Fingerprint = SHA512.Create().ComputeHash(file);
+            Signature = rsa.SignAndGetSignature(Fingerprint);
 
-        public void GetSignature()
-        {
-            byte[] EncryptedDigest = rsa.Encrypt(GetDigest());
-            Signature = Convert.ToBase64String(EncryptedDigest);
+            // Set Archive Metadata
+            CreatedAt = DateTime.UtcNow.ToString("u").Replace(" ", "T");
+            CreatedAtSignature = rsa.SignAndGetSignature(Encoding.UTF8.GetBytes(CreatedAt));
         }
 
         public void UpdateArchive()
         {
-            if (Signature == null)
-            {
-                throw new Exception("You must call GetSignature function first");
-            }
-
             string outputArchivePath = archivePath.Substring(0, archivePath.Length - 4) + ".pl-archive";
 
             FileStream SignedArchive = File.Open(outputArchivePath, FileMode.Create);
@@ -49,11 +45,10 @@ namespace ArchiveSign
 
                 using (StreamWriter writer = new StreamWriter(header.Open()))
                 {
-                    string CreatetAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:s");
-
-                    writer.WriteLine("signature=" + Signature);
-                    writer.WriteLine("created_at=" + CreatetAt);
-                    writer.WriteLine("created_at_sig=" + Convert.ToBase64String(rsa.Encrypt(Encoding.UTF8.GetBytes(CreatetAt))));
+                    writer.WriteLine("fingerprint=" + Convert.ToBase64String(Fingerprint));
+                    writer.WriteLine("signature=" + Convert.ToBase64String(Signature));
+                    writer.WriteLine("created_at=" + CreatedAt);
+                    writer.WriteLine("created_at_signature=" + Convert.ToBase64String(CreatedAtSignature));
                 }
             }
 

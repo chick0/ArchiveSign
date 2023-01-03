@@ -4,13 +4,39 @@ namespace ArchiveSign
 {
     class KeyPair
     {
-        public string Private;
-        public string Public;
+        private readonly string? PrivateKey;
+        private readonly string? PublicKey;
 
-        public KeyPair(string Private, string Public)
+        public string Private
+        { 
+            get 
+            {
+                if (string.IsNullOrEmpty(PrivateKey))
+                {
+                    throw new Exception("Private Key is empty!");
+                }
+
+                return PrivateKey; 
+            } 
+        }
+
+        public string Public 
         {
-            this.Private = Private;
-            this.Public = Public;
+            get 
+            {
+                if (string.IsNullOrEmpty(PublicKey))
+                {
+                    throw new Exception("Public Key is empty!");
+                }
+
+                return PublicKey; 
+            } 
+        }
+
+        public KeyPair(string? Private, string? Public)
+        {
+            PrivateKey = Private;
+            PublicKey = Public;
         }
     }
 
@@ -37,26 +63,40 @@ namespace ArchiveSign
             return new KeyPair(PrivateKey, PublicKey);
         }
 
-        private static KeyPair? ReadKeyPair()
+        private static KeyPair ReadKeyPair()
         {
+            string? PrivateKey;
+            string? PublicKey;
+
             try
             {
-                string PrivateKey = File.OpenText(PrivatePath).ReadToEnd();
-                string PublicKey = File.OpenText(PublicPath).ReadToEnd();
-
-                return new KeyPair(PrivateKey, PublicKey);
+                PrivateKey = File.OpenText(PrivatePath).ReadToEnd();
             }
             catch (FileNotFoundException)
             {
-                return null;
+                PrivateKey = null;
             }
+
+            try
+            {
+                PublicKey = File.OpenText(PublicPath).ReadToEnd();
+            }
+            catch (FileNotFoundException)
+            {
+                PublicKey = null;
+            }
+
+            if ((PrivateKey == null) && (PublicKey == null))
+            {
+                return CreateKeyPair();
+            }
+
+            return new KeyPair(PrivateKey, PublicKey);
         }
 
         public static KeyPair GetKeyPair()
         {
-            KeyPair? pair = ReadKeyPair();
-            pair ??= CreateKeyPair();
-
+            KeyPair pair = ReadKeyPair();
             return pair;
         }
     }
