@@ -16,7 +16,7 @@ namespace ArchiveSign
         {
             try
             {
-                Fingerprint = Convert.FromBase64String(fingerprint);
+                Fingerprint = Encoding.UTF8.GetBytes(fingerprint);
                 Signature = Convert.FromBase64String(signature);
 
                 this.CreatedAt = DateTime.Parse(CreatedAt);

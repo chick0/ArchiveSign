@@ -9,7 +9,7 @@ namespace ArchiveSign
         RSAManager rsa;
         readonly string archivePath;
 
-        readonly byte[] Fingerprint;
+        readonly string Fingerprint;
         readonly byte[] Signature;
 
         readonly string CreatedAt;
@@ -22,9 +22,10 @@ namespace ArchiveSign
 
             // Get Archive Signature
             byte[] file = File.ReadAllBytes(archivePath);
+            byte[] Hash = SHA512.Create().ComputeHash(file);
 
-            Fingerprint = SHA512.Create().ComputeHash(file);
-            Signature = rsa.SignAndGetSignature(Fingerprint);
+            Fingerprint = BitConverter.ToString(Hash).Replace("-", "").ToLower();
+            Signature = rsa.SignAndGetSignature(Encoding.UTF8.GetBytes(Fingerprint));
 
             // Set Archive Metadata
             CreatedAt = DateTime.UtcNow.ToString("u").Replace(" ", "T");
@@ -45,7 +46,7 @@ namespace ArchiveSign
 
                 using (StreamWriter writer = new StreamWriter(header.Open()))
                 {
-                    writer.WriteLine("fingerprint=" + Convert.ToBase64String(Fingerprint));
+                    writer.WriteLine("fingerprint=" + Fingerprint);
                     writer.WriteLine("signature=" + Convert.ToBase64String(Signature));
                     writer.WriteLine("created_at=" + CreatedAt);
                     writer.WriteLine("created_at_signature=" + Convert.ToBase64String(CreatedAtSignature));
