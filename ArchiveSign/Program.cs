@@ -2,12 +2,11 @@ namespace ArchiveSign
 {
     internal class Program
     {
-        static int Main(string[] args)
+        static void Main(string[] args)
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Error: Target is empty.");
-                return -1;
+                throw new Exception("Error: Target is empty.");
             }
 
             for (int i = 0; i < args.Length; i++)
@@ -30,8 +29,6 @@ namespace ArchiveSign
                     Console.WriteLine($"{args[i]}: Verify {result}");
                 }
             }
-
-            return 0;
         }
     }
 }
